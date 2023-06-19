@@ -3,12 +3,21 @@ import React, { useState, useEffect } from 'react';
 import { Loader, Card, FormField } from '../components';
 
 // Create Component
-const RenderCards = ( data, title) => {
+// The data is the actual data that we want to render
+// The title is the text to return if there is no data
+const RenderCards = ( {data, title}) => {
+  // If the length of the data is greater than 0, then map through the data and return the Card component
   if (data?.length > 0 ) {
     return data.map((post) => <Card key={post.id} {...post} />)
+    // All properties of the post object will be passed as "key=value" pairs as separate props in this component
   }
+
+  return (
+    <h2 className='mt-5 font-bold text-[#6449ff] text-xl uppercase'>{title}</h2>
+  )
 }
 
+// -------------------------------------------- //
 const Home = () => {
   const [loading, setLoading] = useState(false);
   const [allPosts, setAllPosts] = useState(null);
@@ -39,7 +48,17 @@ const Home = () => {
             )}
 
             <div className='grid lg:grid-cols-4 sm:grid-cols-3 xs:grid-cols-2 grid-cols-1 gap-3'>
-              <Card />
+              { searchText ? (
+                <RenderCards
+                  data={['j', 'k']}
+                  title="No search results found"
+                />
+              ) : (
+                <RenderCards
+                  data={['j', 'k']} 
+                  title="No posts found"
+                />
+              )}
             </div>
           </>
         )}
