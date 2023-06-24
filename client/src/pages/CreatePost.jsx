@@ -18,13 +18,20 @@ const CreatePost = () => {
   const generateImage = () => {
 
   };
+
   const handleSubmit = () => {
 
   };
-  const handleChange = (e) => {
-  };
-  const handleSurpriseMe = () => {
 
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value})
+    // Here the name and the value are from the FormField component
+    // This function is changing the name and value attributes of the <input> tag in the FormField
+  };
+
+  const handleSurpriseMe = () => {
+    const randomPrompt = getRandomPrompt(form.prompt);
+    setForm({ ...form, prompt: randomPrompt });
   };
 
   return (
@@ -36,6 +43,7 @@ const CreatePost = () => {
 
       <form className='mt-16 max-w-3xl' onSubmit={handleSubmit}>
         <div className='flex flex-col gap-5'>
+          {/* Remember that here handleChange is passed down to the coponent! */}
           <FormField
             labelName="Your Name"
             type="text"
