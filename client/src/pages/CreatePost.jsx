@@ -15,8 +15,35 @@ const CreatePost = () => {
   const [ generatingImg, setGeneratingImg ] = useState(false); // while waiting to get back the image
   const [ loading, setLoading ] = useState(false); // general loading
 
-  const generateImage = () => {
+  const generateImage = async () => {
+    if (form.prompt)  {
+      try {
+        setGeneratingImg(true);
+        // This is the API endpoint link that we made in backend 
+        const response = await fetch('http://localhost:8080/api/v1/dalle', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ prompt: form.prompt })
+      })
+      //  The request includes headers specifying the content type as JSON and a request body containing 
+      // the prompt from the form state.
 
+      // The response data is extracted by calling response.json(), which returns a promise that resolves to the parsed JSON data. This data is stored in the data variable.
+      const data = await response.json();
+      setForm({ ...form, photo: `data:image/jepg;base64,${data.photo}` });
+
+      } catch (error) {
+        alert(error);
+      } finally {
+        // Finally, regardless of success or failure, the setGeneratingImg(false) function is called to set the generatingImg state variable back to false, indicating that the 
+        // image generation process is complete.
+        setGeneratingImg(false);
+      }
+    } else {
+      alert('Please enter a prompt');
+    }
   };
 
   const handleSubmit = () => {
