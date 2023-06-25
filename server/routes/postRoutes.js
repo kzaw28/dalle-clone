@@ -32,13 +32,13 @@ router.route("/").post( async (req, res) => {
         const photoUrl = await cloudinary.uploader.upload(photo);
     
         // We store the url in the database but we store the actual image in cloudinary
-        const newPost = new Post({
-            name,
-            prompt,
+        const newPost = await Post.create({
+            name: name,
+            prompt: prompt,
             photo: photoUrl.url
         });
     
-        res.status(201).json({success: true, data: newPost});
+        res.status(200).json({success: true, data: newPost});
     } catch (error) {
         res.status(500).json({success: false, message: error});
     }

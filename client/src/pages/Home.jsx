@@ -8,12 +8,14 @@ import { Loader, Card, FormField } from '../components';
 const RenderCards = ( {data, title}) => {
   // If the length of the data is greater than 0, then map through the data and return the Card component
   if (data?.length > 0 ) {
-    return data.map((post) => <Card key={post.id} {...post} />)
+    return (
+      data.map((post) => <Card key={post._id} {...post} />)
+      );
     // All properties of the post object will be passed as "key=value" pairs as separate props in this component
   }
 
   return (
-    <h2 className='mt-5 font-bold text-[#6449ff] text-xl uppercase'>{title}</h2>
+    <h2 className='mt-5 font-bold text-[#6469ff] text-xl uppercase'>{title}</h2>
   )
 }
 
@@ -21,7 +23,53 @@ const RenderCards = ( {data, title}) => {
 const Home = () => {
   const [loading, setLoading] = useState(false);
   const [allPosts, setAllPosts] = useState(null);
-  const [searchText, setSearchText] = useState('abc')
+  const [searchText, setSearchText] = useState('');
+  const [searchedResults, setSearchedResults] = useState(null);
+  const [timeout, setTimeout] = useState(null)
+
+  // Call to get all the posts
+  const fetchPosts = async () => {
+    setLoading(true);
+
+    try {
+      const response = await fetch('http://localhost:8080/api/v1/posts', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          }
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          setAllPosts(result.data.reverse()); // Reverse the order of the posts
+        }
+    } catch (error) {
+      alert(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // useEffcet is always called at the start when the component is rendered
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  const handleSearchChange = (e) => {
+    clearTimeout(timeout);
+    setSearchText(e.target.value);
+     
+    setTimeout(
+      // To make sure that there is no request each time for each individual letter
+      setTimeout(() => {
+        // Filter the posts based on the search text
+        const searchResults = allPosts.filter((post) => post.name.toLowerCase().includes(searchText.toLowerCase()) ||
+        post.prompt.toLowerCase().includes(searchText.toLowerCase()));
+        setSearchedResults(searchResults);
+      }, 500)
+    );
+  }
+
 
   return (
     <section className="max-w-7xl mx-auto">
@@ -31,7 +79,14 @@ const Home = () => {
       </div>
 
       <div className='mt-16'>
-        <FormField />
+        <FormField 
+          labelName='Search posts'
+          type='text'
+          name='text'
+          placeholder='Search posts'
+          value={searchText}
+          handleChange={handleSearchChange}
+          />
       </div>
 
       <div className='mt-10'>
@@ -50,12 +105,12 @@ const Home = () => {
             <div className='grid lg:grid-cols-4 sm:grid-cols-3 xs:grid-cols-2 grid-cols-1 gap-3'>
               { searchText ? (
                 <RenderCards
-                  data={['j', 'k']}
+                  data={searchedResults}
                   title="No search results found"
                 />
               ) : (
                 <RenderCards
-                  data={['j', 'k']} 
+                  data={allPosts} 
                   title="No posts found"
                 />
               )}
